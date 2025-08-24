@@ -1,0 +1,34 @@
+{
+      "C_Cpp.intelliSenseEngine": "default",
+  "idf.espIdfPathWin": "C:\\Users\\Ja\\esp\\v5.4.1\\esp-idf",
+  "idf.pythonInstallPath": "C:\\Users\\Ja\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+  "idf.openOcdConfigs": [
+    "board/esp32c6-ftdi.cfg"
+],
+  "idf.portWin": "COM17",
+  "idf.toolsPathWin": "C:\\Users\\Ja\\.espressif",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32c6"
+},
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#898989",
+        "activityBar.background": "#898989",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#206060",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#898989",
+        "statusBar.background": "#707070",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#898989",
+        "statusBarItem.remoteBackground": "#707070",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#707070",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#70707099",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#707070",
+    "idf.flashType": "UART"
+}
