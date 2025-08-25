@@ -268,7 +268,7 @@ void button_handler(switch_func_pair_t *button_func_pair)
 
         for(int i = 0; i < 50; i++) {
             create_ping(0x0000);
-            vTaskDelay(pdMS_TO_TICKS(200));
+            vTaskDelay(pdMS_TO_TICKS(2));
         }
         display_statistics();
         esp_zigbee_include_show_tables();
