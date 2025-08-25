@@ -20,6 +20,9 @@ static const char *TAG = "esp_zigbee_include";
 static uint32_t byte_counter = 0;
 static uint32_t byte_count = 0;
 
+static uint16_t successful_ping_count = 0;
+static uint16_t failed_ping_count = 0;
+
 esp_zb_apsde_data_req_t create_aps_request(uint16_t dest_addr, uint8_t dst_endpoint, uint8_t src_endpoint,
                                            uint16_t profile_id, uint16_t cluster_id, uint8_t *asdu, uint32_t asdu_length,
                                            uint8_t tx_options, bool use_alias, uint16_t alias_src_addr, int alias_seq_num,
@@ -120,6 +123,7 @@ static switch_func_pair_t button_func_pair[] = {
 void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm)
 {
      if (confirm.status == 0x00) {
+        successful_ping_count++;
         ESP_LOGI("APSDE CONFIRM",
                 "Sent successfully from endpoint %d, source address 0x%04hx to endpoint %d,"
                 "destination address 0x%04hx, tx_time %d ms",
@@ -128,6 +132,7 @@ void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm)
         // ESP_LOG_BUFFER_CHAR_LEVEL("APSDE CONFIRM", confirm.asdu, confirm.asdu_length, ESP_LOG_INFO);
         
     } else {
+        failed_ping_count++;
         if(confirm.dst_addr_mode == ESP_ZB_APS_ADDR_MODE_64_ENDP_PRESENT || confirm.dst_addr_mode == ESP_ZB_APS_ADDR_MODE_64_PRESENT_ENDP_NOT_PRESENT) {
             ESP_LOGW("APSDE CONFIRM", "Failed to send APSDE-DATA request to 0x%016" PRIx64 ", error code: %d, tx time %d ms",
                      *(uint64_t *)confirm.dst_addr.addr_long, confirm.status, confirm.tx_time);
@@ -249,13 +254,23 @@ void create_network_load_64bit(uint64_t dest_addr, uint8_t repetitions)
         create_ping_64(dest_addr);
     }
 }
-
-
+void display_statistics(void)
+{
+    ESP_LOGI(TAG, "Failed ping count: %d", failed_ping_count);
+    ESP_LOGI(TAG, "Successful ping count: %d", successful_ping_count);
+    ESP_LOGI(TAG, "Total ping attempts: %d", failed_ping_count + successful_ping_count);
+    // Add code to display relevant statistics
+}
 
 void button_handler(switch_func_pair_t *button_func_pair)
 {
     if(button_func_pair->func == SWITCH_ONOFF_TOGGLE_CONTROL) {
-        create_ping(0x0000); 
+
+        for(int i = 0; i < 50; i++) {
+            create_ping(0x0000);
+            vTaskDelay(pdMS_TO_TICKS(200));
+        }
+        display_statistics();
         esp_zigbee_include_show_tables();
         // create_network_load(0x0000);
 

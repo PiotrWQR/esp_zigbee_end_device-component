@@ -3,6 +3,7 @@
 #include "nwk/esp_zigbee_nwk.h"
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind);
+void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm);
 bool deferred_driver_init(void);
 void esp_show_neighbor_table();
 void esp_show_route_table();
