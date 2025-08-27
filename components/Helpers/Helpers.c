@@ -206,7 +206,7 @@ void create_ping_64(uint64_t dest_addr)
 //TODO sprawdz większy payload, czy działa
 void create_ping(uint16_t dest_addr)
 {
-    uint32_t data_length = 50; // Example payload length
+    uint32_t data_length = 82; // Example payload length
     esp_zb_apsde_data_req_t req = {
         .dst_addr_mode = ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT,
         .dst_addr.addr_short = dest_addr,
@@ -254,6 +254,7 @@ void create_network_load_64bit(uint64_t dest_addr, uint8_t repetitions)
         create_ping_64(dest_addr);
     }
 }
+
 void display_statistics(void)
 {
     ESP_LOGI(TAG, "Failed ping count: %d", failed_ping_count);
@@ -268,7 +269,7 @@ void button_handler(switch_func_pair_t *button_func_pair)
 
         for(int i = 0; i < 50; i++) {
             create_ping(0x0000);
-            vTaskDelay(pdMS_TO_TICKS(20));
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
         display_statistics();
         esp_zigbee_include_show_tables();

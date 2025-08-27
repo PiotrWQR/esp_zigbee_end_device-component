@@ -3,9 +3,9 @@
   "idf.espIdfPathWin": "C:\\Users\\Ja\\esp\\v5.4.1\\esp-idf",
   "idf.pythonInstallPath": "C:\\Users\\Ja\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
   "idf.openOcdConfigs": [
-    "board/esp32c6-ftdi.cfg"
+    "board/esp32c6-builtin.cfg"
 ],
-  "idf.portWin": "COM14",
+  "idf.portWin": "COM6",
   "idf.toolsPathWin": "C:\\Users\\Ja\\.espressif",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c6"
@@ -30,5 +30,5 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#707070",
-    "idf.flashType": "UART"
+    "idf.flashType": "JTAG"
 }
