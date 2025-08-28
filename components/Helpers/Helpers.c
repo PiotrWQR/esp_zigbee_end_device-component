@@ -206,7 +206,7 @@ void create_ping_64(uint64_t dest_addr)
 //TODO sprawdz większy payload, czy działa
 void create_ping(uint16_t dest_addr)
 {
-    uint32_t data_length = 82; // Example payload length
+    uint32_t data_length = PAYLOAD_SIZE; // Example payload length
     esp_zb_apsde_data_req_t req = {
         .dst_addr_mode = ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT,
         .dst_addr.addr_short = dest_addr,
@@ -267,9 +267,9 @@ void button_handler(switch_func_pair_t *button_func_pair)
 {
     if(button_func_pair->func == SWITCH_ONOFF_TOGGLE_CONTROL) {
 
-        for(int i = 0; i < 50; i++) {
-            create_ping(0x0000);
-            vTaskDelay(pdMS_TO_TICKS(10));
+        for(int i = 0; i < REPEATS; i++) {
+            create_ping(DEST_ADDR);
+            vTaskDelay(pdMS_TO_TICKS(DELAY_MS));
         }
         display_statistics();
         esp_zigbee_include_show_tables();
