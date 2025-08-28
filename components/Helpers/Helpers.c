@@ -267,10 +267,6 @@ void button_handler(switch_func_pair_t *button_func_pair)
 {
     if(button_func_pair->func == SWITCH_ONOFF_TOGGLE_CONTROL) {
 
-        for(int i = 0; i < REPEATS; i++) {
-            create_ping(DEST_ADDR);
-            vTaskDelay(pdMS_TO_TICKS(DELAY_MS));
-        }
         display_statistics();
         esp_zigbee_include_show_tables();
         // create_network_load(0x0000);
@@ -320,7 +316,17 @@ void send_traffic_report(void)
 
 }
 
+void beacon_task(void *pvParameters)
+{
 
+    while(!esp_zb_bdb_dev_joined()){
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    while (1) {
+        create_ping(DEST_ADDR);
+        vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 50 milliseconds
+    }
+}
 
 void refresh_routes(void)
 {

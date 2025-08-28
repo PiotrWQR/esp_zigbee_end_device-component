@@ -5,7 +5,7 @@
 #define PAYLOAD_SIZE                       50
 #define REPEATS                            900
 #define DEST_ADDR                          0x0000
-#define DELAY_MS                           20
+#define DELAY_MS                           200
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind);
 void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm);
@@ -13,7 +13,7 @@ bool deferred_driver_init(void);
 void esp_show_neighbor_table();
 void esp_show_route_table();
 void esp_zigbee_include_show_tables(void);
-
+void beacon_task(void *pvParameters);
 
 
 static const char *dev_type_name[] = {
