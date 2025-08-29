@@ -331,7 +331,7 @@ void beacon_task(void *pvParameters)
         time_start = pdTICKS_TO_MS(xTaskGetTickCount());
         while(iter < REPEATS){
             create_ping(DEST_ADDR);
-            //vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
+            vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
             iter++;
         }
         time_end = pdTICKS_TO_MS(xTaskGetTickCount());
