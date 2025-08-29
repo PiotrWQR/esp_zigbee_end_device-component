@@ -22,6 +22,7 @@ static uint32_t byte_count = 0;
 
 static uint16_t successful_ping_count = 0;
 static uint16_t failed_ping_count = 0;
+static uint16_t iter = REPEATS+1;
 
 esp_zb_apsde_data_req_t create_aps_request(uint16_t dest_addr, uint8_t dst_endpoint, uint8_t src_endpoint,
                                            uint16_t profile_id, uint16_t cluster_id, uint8_t *asdu, uint32_t asdu_length,
@@ -231,10 +232,10 @@ void create_ping(uint16_t dest_addr)
             req.asdu[i] = i % 256; // Fill with some data, e.g., incrementing values
         }
     }
-    ESP_LOGI(TAG, "Size of request: %ld bytes", data_length+ sizeof(esp_zb_apsde_data_req_t));
+    //ESP_LOGI(TAG, "Size of request: %ld bytes", data_length+ 37);
 
 
-    ESP_LOGI(TAG, "Sending APS data request to 0x%04hx with %ld bytes", dest_addr, data_length);
+    //ESP_LOGI(TAG, "Sending APS data request to 0x%04hx with %ld bytes", dest_addr, data_length);
     esp_zb_lock_acquire(portMAX_DELAY);
     esp_zb_aps_data_request(&req);
     esp_zb_lock_release();
@@ -266,19 +267,17 @@ void display_statistics(void)
 void button_handler(switch_func_pair_t *button_func_pair)
 {
     if(button_func_pair->func == SWITCH_ONOFF_TOGGLE_CONTROL) {
-
         display_statistics();
         esp_zigbee_include_show_tables();
-        // create_network_load(0x0000);
+        iter = 0;
 
+        // create_network_load(0x0000);
         // create_network_load_64bit(0x404ccafffe5fae8c, 3);
         // ESP_LOGI("empty line", "");
         // create_network_load_64bit(0x404ccafffe5fb4d4, 3);
         // ESP_LOGI("empty line", "");
         // create_network_load_64bit(0x404ccafffe5de2a8, 3);
         // ESP_LOGI("empty line", "");
-        
-        
     }
 }
 
@@ -319,14 +318,22 @@ void send_traffic_report(void)
 void beacon_task(void *pvParameters)
 {
 
+    uint32_t time_start = 0;
     while(!esp_zb_bdb_dev_joined()){
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     while (1) {
-        create_ping(DEST_ADDR);
-        vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 50 milliseconds
+        while(iter >= REPEATS){vTaskDelay(pdMS_TO_TICKS(100));} // Block task
+        time_start = pdTICKS_TO_MS(xTaskGetTickCount());
+        while(iter < REPEATS){
+            create_ping(DEST_ADDR);
+            vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
+            iter++;
+        }
+        ESP_LOGI(TAG, "Start time: %ld, End time: %ld, Passed time: %ld", time_start, pdTICKS_TO_MS(xTaskGetTickCount()), pdTICKS_TO_MS(xTaskGetTickCount()) - time_start);
     }
 }
+
 
 void refresh_routes(void)
 {

@@ -3,9 +3,9 @@
 #include "nwk/esp_zigbee_nwk.h"
 
 #define PAYLOAD_SIZE                       50
-#define REPEATS                            900
+#define REPEATS                            50
 #define DEST_ADDR                          0x0000
-#define DELAY_MS                           200
+#define DELAY_MS                           0
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind);
 void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm);

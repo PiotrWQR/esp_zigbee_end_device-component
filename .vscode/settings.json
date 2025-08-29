@@ -5,7 +5,7 @@
   "idf.openOcdConfigs": [
     "board/esp32c6-builtin.cfg"
 ],
-  "idf.portWin": "COM6",
+  "idf.portWin": "COM8",
   "idf.toolsPathWin": "C:\\Users\\Ja\\.espressif",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c6"
