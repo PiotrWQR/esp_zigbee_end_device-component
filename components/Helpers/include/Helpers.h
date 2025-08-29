@@ -6,6 +6,7 @@
 #define REPEATS                            50
 #define DEST_ADDR                          0x0000
 #define DELAY_MS                           0
+#define DELAY_TICK                         10
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind);
 void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm);

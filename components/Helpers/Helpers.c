@@ -327,18 +327,20 @@ void beacon_task(void *pvParameters)
     }
     while (1) {
         while(iter >= REPEATS){vTaskDelay(pdMS_TO_TICKS(100));} // Block task
-        bytes =0;
+        bytes = 0;
         time_start = pdTICKS_TO_MS(xTaskGetTickCount());
         while(iter < REPEATS){
             create_ping(DEST_ADDR);
             vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
+            //vTaskDelay(DELAY_TICK); 
             iter++;
         }
         time_end = pdTICKS_TO_MS(xTaskGetTickCount());
         passed_time = time_end - time_start;
 
         ESP_LOGI(TAG, "Start time: %ld, End time: %ld, Passed time: %ld", time_start, time_end, passed_time);
-        ESP_LOGI(TAG, "Bytes : %ld", bytes );
+        ESP_LOGI(TAG, "Bytes : %ld, payload size: %d", bytes, PAYLOAD_SIZE);
+        ESP_LOGI(TAG, "One millisecond: %ld", pdMS_TO_TICKS(1));
     }
 }
 
