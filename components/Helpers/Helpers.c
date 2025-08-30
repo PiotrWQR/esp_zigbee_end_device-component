@@ -130,7 +130,7 @@ void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm)
                 "Sent successfully from endpoint %d, source address 0x%04hx to endpoint %d,"
                 "destination address 0x%04hx, tx_time %d ms",
                 confirm.src_endpoint, esp_zb_get_short_address(), confirm.dst_endpoint, confirm.dst_addr.addr_short,
-            confirm.tx_time);
+                confirm.tx_time);
         // ESP_LOG_BUFFER_CHAR_LEVEL("APSDE CONFIRM", confirm.asdu, confirm.asdu_length, ESP_LOG_INFO);
         
     } else {
@@ -341,7 +341,7 @@ void beacon_task(void *pvParameters)
 
         ESP_LOGI(TAG, "Start time: %ld, End time: %ld, Passed time: %ld", time_start, time_end, passed_time);
         ESP_LOGI(TAG, "Bytes : %ld, payload size: %d", bytes, PAYLOAD_SIZE);
-        ESP_LOGI(TAG, "One millisecond: %ld", pdMS_TO_TICKS(1));
+        // ESP_LOGI(TAG, "One millisecond: %ld", pdMS_TO_TICKS(1));
     }
 }
 
