@@ -150,6 +150,28 @@ void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm)
     }
 }
 
+void send_information_to_coordinator(data_to_send_t *data){
+    esp_zb_apsde_data_req_t req = {
+        .dst_addr_mode = ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT,
+        .dst_endpoint = 20,
+        .profile_id = ESP_ZB_AF_HA_PROFILE_ID,
+        .cluster_id = ESP_ZB_ZCL_CLUSTER_ID_BASIC,
+        .src_endpoint = 10,
+        .asdu_length = sizeof(data_to_send_t),
+        .tx_options = 0,
+        .use_alias = false,
+        .alias_src_addr = 0,
+        .alias_seq_num = 0,
+        .radius = 3,
+    };
+    req.asdu = malloc(req.asdu_length * sizeof(uint8_t));
+    memcpy(req.asdu, data, sizeof(data_to_send_t));
+    // ESP_LOGI(TAG, "Sending data to coordinator, start time: %ld, end time: %ld, asdu length: %ld", ((data_to_send_t *)req.asdu)->start_time,
+    //     ((data_to_send_t *)req.asdu)->end_time, req.asdu_length);
+    esp_zb_lock_acquire(portMAX_DELAY);
+    esp_zb_aps_data_request(&req);
+    esp_zb_lock_release();
+}
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind)
 {
@@ -319,8 +341,7 @@ void send_traffic_report(void)
 void beacon_task(void *pvParameters)
 {
 
-    uint32_t time_start = 0;
-    uint32_t time_end = 0;
+    data_to_send_t data;
     uint32_t passed_time = 0;
     while(!esp_zb_bdb_dev_joined()){
         vTaskDelay(pdMS_TO_TICKS(100));
@@ -328,7 +349,7 @@ void beacon_task(void *pvParameters)
     while (1) {
         while(iter >= REPEATS){vTaskDelay(pdMS_TO_TICKS(100));} // Block task
         bytes = 0;
-        time_start = pdTICKS_TO_MS(xTaskGetTickCount());
+        data.start_time = pdTICKS_TO_MS(xTaskGetTickCount());
         while(iter < REPEATS){
             create_ping(DEST_ADDR);
             vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
@@ -336,10 +357,15 @@ void beacon_task(void *pvParameters)
             //vTaskDelay(DELAY_TICK);
             iter++;
         }
-        time_end = pdTICKS_TO_MS(xTaskGetTickCount());
-        passed_time = time_end - time_start;
+        data.end_time = pdTICKS_TO_MS(xTaskGetTickCount());
+        passed_time = data.end_time - data.start_time;
+        data.failed_ping_count = failed_ping_count;
+        data.successful_ping_count = successful_ping_count;
+        failed_ping_count = 0;
+        successful_ping_count = 0;
 
-        ESP_LOGI(TAG, "Start time: %ld, End time: %ld, Passed time: %ld", time_start, time_end, passed_time);
+        send_information_to_coordinator(&data);
+        ESP_LOGI(TAG, "Start time: %ld, End time: %ld, Passed time: %ld", data.start_time, data.end_time, passed_time);
         ESP_LOGI(TAG, "Bytes : %ld, payload size: %d", bytes, PAYLOAD_SIZE);
         // ESP_LOGI(TAG, "One millisecond: %ld", pdMS_TO_TICKS(1));
     }

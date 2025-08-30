@@ -2,7 +2,7 @@
 #include "aps/esp_zigbee_aps.h"
 #include "nwk/esp_zigbee_nwk.h"
 
-#define PAYLOAD_SIZE                       50
+#define PAYLOAD_SIZE                       82
 #define REPEATS                            50
 #define DEST_ADDR                          0x0000
 #define DELAY_MS                           0
@@ -43,6 +43,12 @@ typedef struct {
     //esp_zb_ieee_addr_t priority_node
 } esp_zb_network_traffic_report_t;
 
+typedef struct data_to_send_s {
+    uint32_t start_time;
+    uint32_t end_time;
+    uint32_t failed_ping_count;
+    uint32_t successful_ping_count;
+} data_to_send_t;
 
 
 void send_traffic_report(void);
