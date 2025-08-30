@@ -30,5 +30,8 @@
         "titleBar.inactiveForeground": "#15202b99"
     },
     "peacock.color": "#a0d0ab",
-    "idf.flashType": "JTAG"
+    "idf.flashType": "JTAG",
+    "files.associations": {
+        "main.h": "c"
+    }
 }
