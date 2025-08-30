@@ -332,7 +332,7 @@ void beacon_task(void *pvParameters)
         while(iter < REPEATS){
             create_ping(DEST_ADDR);
             vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
-            ESP_LOGI(TAG, "Iteration: %d", iter);
+            // ESP_LOGI(TAG, "Iteration: %d", iter);
             //vTaskDelay(DELAY_TICK);
             iter++;
         }
