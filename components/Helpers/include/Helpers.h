@@ -50,6 +50,12 @@ typedef struct data_to_send_s {
     uint32_t successful_ping_count;
 } data_to_send_t;
 
+typedef struct ping_payload_s {
+    uint32_t seq_num;
+    uint32_t send_time;
+    uint8_t payload[PAYLOAD_SIZE - 2*sizeof(uint32_t) ];
+} ping_payload_t;
+
 
 void send_traffic_report(void);
 void refresh_routes(void);

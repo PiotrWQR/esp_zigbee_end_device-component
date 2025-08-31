@@ -25,44 +25,10 @@ static uint16_t failed_ping_count = 0;
 static uint16_t iter = REPEATS+1;
 static uint32_t bytes =0 ;
 
-esp_zb_apsde_data_req_t create_aps_request(uint16_t dest_addr, uint8_t dst_endpoint, uint8_t src_endpoint,
-                                           uint16_t profile_id, uint16_t cluster_id, uint8_t *asdu, uint32_t asdu_length,
-                                           uint8_t tx_options, bool use_alias, uint16_t alias_src_addr, int alias_seq_num,
-                                           uint8_t radius)
-{
-    esp_zb_apsde_data_req_t req = {
-        .dst_addr_mode = ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT,
-        .dst_addr.addr_short = dest_addr,
-        .dst_endpoint = dst_endpoint,
-        .profile_id = profile_id,
-        .cluster_id = cluster_id,
-        .src_endpoint = src_endpoint,
-        .asdu_length = asdu_length,
-        .asdu = asdu,
-        .tx_options = tx_options,
-        .use_alias = use_alias,
-        .alias_src_addr = alias_src_addr,
-        .alias_seq_num = alias_seq_num,
-        .radius = radius
-    };
-    return req;
-}
-
-
-void traffic_reporter_init(){
-    byte_counter = 0;
-    byte_count = 0;
-    while (1) {
-        ESP_LOGI(TAG, "Byte count in last 10 seconds: %ld", byte_count);
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Wait for 10 seconds
-        byte_count = byte_counter; // Store the current byte count
-        byte_counter = 0; // Reset the counter after sending the report
-        send_traffic_report();
-    }    
-}
 
 //function creatiing 68 bytes payload and sending it to the destination address
 void create_ping(uint16_t dest_addr);
+void create_ping_seq(uint16_t dest_addr, uint32_t seq_num);
 void create_ping_64bit(uint64_t dest_addr);
 void create_network_load(uint16_t dest_addr, uint8_t repetitions);
 void create_network_load_64bit(uint64_t dest_addr, uint8_t repetitions);
@@ -265,18 +231,45 @@ void create_ping(uint16_t dest_addr)
     free(req.asdu); // Free the allocated memory for ASDU
 }
 
-void create_network_load(uint16_t dest_addr, uint8_t repetitions)
+void create_ping_seq(uint16_t dest_addr, uint32_t seq_num)
 {
-    for(int8_t i = 0; i < repetitions; i++) {
-        create_ping(dest_addr);
-    }
-}
+    uint32_t data_length = PAYLOAD_SIZE; // Example payload length
+    esp_zb_apsde_data_req_t req = {
+        .dst_addr_mode = ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT,
+        .dst_addr.addr_short = dest_addr,
+        .dst_endpoint = 10,                          // Example endpoint
+        .profile_id = ESP_ZB_AF_HA_PROFILE_ID,      // Example profile ID
+        .cluster_id = ESP_ZB_ZCL_CLUSTER_ID_BASIC,  // Example cluster ID (On/Off cluster)
+        .src_endpoint = 10,                          // Example source endpoint
+        .asdu_length = data_length,                  // No payload for ping
+        .asdu = malloc(data_length * sizeof(uint8_t)), // Allocate memory for ASDU if needed
+        .tx_options = 0,                            // Example transmission options
+        .use_alias = false,
+        .alias_src_addr = 0,
+        .alias_seq_num = 0,
+        .radius = 3,                                 // Example radius
+    };
 
-void create_network_load_64bit(uint64_t dest_addr, uint8_t repetitions)
-{
-    for(int8_t i = 0; i < repetitions; i++) {
-        create_ping_64(dest_addr);
+    ping_payload_t ping_payload;
+
+    if (req.asdu == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for ASDU");
+        return;
+    } 
+    ping_payload.seq_num = seq_num;
+    ping_payload.send_time = pdTICKS_TO_MS(xTaskGetTickCount());
+    for (uint8_t i = 0; i < PAYLOAD_SIZE - 2*sizeof(uint32_t); i++) {
+        ping_payload.payload[i] = i % 256; // Fill with some data, e.g., incrementing values
     }
+    memcpy(req.asdu, &ping_payload, sizeof(ping_payload_t));
+    //ESP_LOGI(TAG, "Size of request: %ld bytes", data_length+ 37);
+
+    bytes += data_length + 37;
+    //ESP_LOGI(TAG, "Sending APS data request to 0x%04hx with %ld bytes", dest_addr, data_length);
+    esp_zb_lock_acquire(portMAX_DELAY);
+    esp_zb_aps_data_request(&req);
+    esp_zb_lock_release();
+    free(req.asdu); // Free the allocated memory for ASDU
 }
 
 void display_statistics(void)
@@ -313,34 +306,9 @@ bool deferred_driver_init(void)
 }
 
 
-void send_traffic_report(void)
-{
-    esp_zb_network_traffic_report_t traffic_report = {
-        .traffic_count = 0, // Initialize traffic count
-    };
-
-    esp_zb_nwk_info_iterator_t itor = ESP_ZB_NWK_INFO_ITERATOR_INIT;
-    esp_zb_nwk_neighbor_info_t neighbor = {};
-    
-    const uint8_t traffic_report_endpoint = 70;
-
-
-    while (ESP_OK == esp_zb_nwk_get_next_neighbor(&itor, &neighbor)) {
-        if( neighbor.relationship == ESP_ZB_NWK_RELATIONSHIP_CHILD){
-            esp_zb_apsde_data_req_t req = create_aps_request(neighbor.short_addr, traffic_report_endpoint, traffic_report_endpoint, ESP_ZB_AF_HA_PROFILE_ID,
-                               ESP_ZB_ZCL_CLUSTER_ID_BASIC, (uint8_t *)&traffic_report, sizeof(esp_zb_network_traffic_report_t),
-                               0, false, 0, 0, 3);
-            esp_zb_lock_acquire(portMAX_DELAY);
-            esp_zb_aps_data_request(&req);
-            esp_zb_lock_release();
-        }
-    }
-
-}
-
 void beacon_task(void *pvParameters)
 {
-
+    
     data_to_send_t data;
     uint32_t passed_time = 0;
     while(!esp_zb_bdb_dev_joined()){
@@ -351,7 +319,7 @@ void beacon_task(void *pvParameters)
         bytes = 0;
         data.start_time = pdTICKS_TO_MS(xTaskGetTickCount());
         while(iter < REPEATS){
-            create_ping(DEST_ADDR);
+            create_ping_seq(DEST_ADDR, iter);
             vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
             // ESP_LOGI(TAG, "Iteration: %d", iter);
             //vTaskDelay(DELAY_TICK);
@@ -368,17 +336,5 @@ void beacon_task(void *pvParameters)
         ESP_LOGI(TAG, "Start time: %ld, End time: %ld, Passed time: %ld", data.start_time, data.end_time, passed_time);
         ESP_LOGI(TAG, "Bytes : %ld, payload size: %d", bytes, PAYLOAD_SIZE);
         // ESP_LOGI(TAG, "One millisecond: %ld", pdMS_TO_TICKS(1));
-    }
-}
-
-
-void refresh_routes(void)
-{
-    esp_zb_nwk_info_iterator_t itor = ESP_ZB_NWK_INFO_ITERATOR_INIT;
-    esp_zb_nwk_route_info_t route = {};
-
-    ESP_LOGI(TAG, "Refreshing Zigbee Network Routes:");
-    while (ESP_OK == esp_zb_nwk_get_next_route(&itor, &route)) {
-        create_ping(route.dest_addr);
     }
 }
