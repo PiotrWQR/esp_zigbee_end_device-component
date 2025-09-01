@@ -258,7 +258,8 @@ void create_ping_seq(uint16_t dest_addr, uint32_t seq_num)
     } 
     ping_payload.seq_num = seq_num;
     ping_payload.send_time = pdTICKS_TO_MS(xTaskGetTickCount());
-    for (uint8_t i = 0; i < PAYLOAD_SIZE - 2*sizeof(uint32_t); i++) {
+    ping_payload.max_ping_count = REPEATS;
+    for (uint8_t i = 0; i < PING_PAYLOAD_SIZE; i++) {
         ping_payload.payload[i] = i % 256; // Fill with some data, e.g., incrementing values
     }
     memcpy(req.asdu, &ping_payload, sizeof(ping_payload_t));

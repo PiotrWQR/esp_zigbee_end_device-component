@@ -50,10 +50,12 @@ typedef struct data_to_send_s {
     uint32_t successful_ping_count;
 } data_to_send_t;
 
+#define PING_PAYLOAD_SIZE (PAYLOAD_SIZE - 3*sizeof(uint32_t))
 typedef struct ping_payload_s {
     uint32_t seq_num;
     uint32_t send_time;
-    uint8_t payload[PAYLOAD_SIZE - 2*sizeof(uint32_t) ];
+    uint32_t max_ping_count;
+    uint8_t payload[PING_PAYLOAD_SIZE];
 } ping_payload_t;
 
 
