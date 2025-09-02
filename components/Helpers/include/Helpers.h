@@ -3,10 +3,10 @@
 #include "nwk/esp_zigbee_nwk.h"
 
 #define PAYLOAD_SIZE                       82
-#define REPEATS                            50
-#define DEST_ADDR                          0x0000
-#define DELAY_MS                           0
-#define DELAY_TICK                         10
+    static uint16_t REPEATS = 80;
+static uint16_t DEST_ADDR = 0x0000;
+static uint32_t DELAY_MS = 0;
+static uint32_t DELAY_TICK = 10;
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind);
 void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm);
@@ -58,6 +58,13 @@ typedef struct ping_payload_s {
     uint8_t payload[PING_PAYLOAD_SIZE];
 } ping_payload_t;
 
+
+typedef struct {
+    uint16_t new_repeats;
+    uint16_t new_dest_addr;
+    uint32_t new_delay_ms;
+    uint32_t new_delay_tick;
+} setting_change_t;
 
 void send_traffic_report(void);
 void refresh_routes(void);

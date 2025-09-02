@@ -22,7 +22,7 @@ static uint32_t byte_count = 0;
 
 static uint16_t successful_ping_count = 0;
 static uint16_t failed_ping_count = 0;
-static uint16_t iter = REPEATS+1;
+static uint16_t iter = 0xffff;
 static uint32_t bytes =0 ;
 
 
@@ -152,6 +152,16 @@ bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind)
         } 
         if (ind.dst_endpoint == 27 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
             create_ping(ind.src_short_addr); // Respond to the received data
+        }
+        if(ind.dst_endpoint == 30 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
+            setting_change_t *setting_change = (setting_change_t *)ind.asdu;
+            REPEATS = setting_change->new_repeats;
+            DELAY_MS = setting_change->new_delay_ms;
+            DEST_ADDR = setting_change->new_dest_addr;
+            DELAY_TICK = setting_change->new_delay_tick;
+            ESP_LOGI("APSDE INDICATION", "Received settings change: REPEATS=%d, DEST_ADDR=0x%04hx, DELAY_MS=%ld, DELAY_TICK=%ld",
+                     REPEATS, DEST_ADDR, DELAY_MS, DELAY_TICK);
+            // Respond to the received data
         }
     } else {
         ESP_LOGE("APSDE INDICATION", "Invalid status of APSDE-DATA indication, error code: %d", ind.status);
