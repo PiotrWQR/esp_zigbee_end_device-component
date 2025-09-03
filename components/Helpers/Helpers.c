@@ -155,12 +155,19 @@ bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind)
         }
         if(ind.dst_endpoint == 30 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
             setting_change_t *setting_change = (setting_change_t *)ind.asdu;
+            ESP_LOGI("APSDE INDICATION", "Received settings change: REPEATS=%d, DEST_ADDR=0x%04hx, DELAY_MS=%ld, DELAY_TICK=%ld",
+                     setting_change->new_repeats, setting_change->new_dest_addr, setting_change->new_delay_ms, setting_change->new_delay_tick);
+            ESP_LOGI("APSDE_INDICATION", "Received mac config: CSMA_MIN_BE=%d, CSMA_MAX_BE=%d, CSMA_MAX_BACKOFFS=%d",
+                     setting_change->csma_min_be, setting_change->csma_max_be, setting_change->csma_max_backoffs);
             REPEATS = setting_change->new_repeats;
             DELAY_MS = setting_change->new_delay_ms;
             DEST_ADDR = setting_change->new_dest_addr;
             DELAY_TICK = setting_change->new_delay_tick;
-            ESP_LOGI("APSDE INDICATION", "Received settings change: REPEATS=%d, DEST_ADDR=0x%04hx, DELAY_MS=%ld, DELAY_TICK=%ld",
-                     REPEATS, DEST_ADDR, DELAY_MS, DELAY_TICK);
+            esp_zb_platform_mac_config_t mac_config;
+                mac_config.csma_min_be = setting_change->csma_min_be;
+                mac_config.csma_max_be = setting_change->csma_max_be;
+                mac_config.csma_max_backoffs = setting_change->csma_max_backoffs;
+            ESP_ERROR_CHECK(esp_zb_platform_mac_config_set(&mac_config));
             // Respond to the received data
         }
     } else {

@@ -64,6 +64,9 @@ typedef struct {
     uint16_t new_dest_addr;
     uint32_t new_delay_ms;
     uint32_t new_delay_tick;
+    uint8_t csma_min_be;        /*!< The minimum value of the backoff exponent, BE, in the CSMA-CA algorithm. */
+    uint8_t csma_max_be;        /*!< The maximum value of the backoff exponent, BE, in the CSMA-CA algorithm. */
+    uint8_t csma_max_backoffs;
 } setting_change_t;
 
 void send_traffic_report(void);
