@@ -6,7 +6,7 @@
 #define ED_ID                             10                                    /* esp light switch device endpoint */
 #define ESP_ZB_PRIMARY_CHANNEL_MASK       ESP_ZB_TRANSCEIVER_ALL_CHANNELS_MASK  /* Zigbee primary channel mask use in the example */
 #define ESP_ZB_TOUCHLINK_RSSI_THRESHOLD   -90                                   /* Touchlink RSSI threshold */
-
+#define ESP_ZB_SECUR_MIN_LQI               0                                   /* Minimum LQI to join the network */
 
 #define ESP_ZB_ZR_CONFIG()                                                              \
 {                                                                                       \

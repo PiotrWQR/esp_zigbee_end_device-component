@@ -160,6 +160,8 @@ static void esp_zb_task(void *pcParameters)
     
 
     esp_zb_set_primary_network_channel_set(ESP_ZB_PRIMARY_CHANNEL_MASK);
+    esp_zb_secur_network_min_join_lqi_set(ESP_ZB_SECUR_MIN_LQI);
+
     ESP_ERROR_CHECK(zb_register_device());
     ESP_ERROR_CHECK(esp_zb_start(false));
     esp_zb_stack_main_loop();
