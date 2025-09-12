@@ -75,11 +75,30 @@ void esp_show_route_table()
     }
 } 
 
+
+void esp_show_record_route_table()
+{   
+    esp_zb_nwk_route_record_info_t route_record;
+    esp_zb_nwk_info_iterator_t itor = ESP_ZB_NWK_INFO_ITERATOR_INIT;
+
+    while (ESP_OK == esp_zb_nwk_get_next_route_record(&itor, &route_record)) {
+        ESP_LOGI(TAG,"Index: %3d", itor);
+        ESP_LOGI(TAG,"  DestAddr: 0x%04hx", route_record.dest_address);
+        ESP_LOGI(TAG,"  NextHop: 0x%04hx", route_record.expiry);
+        ESP_LOGI(TAG,"  Expiry: %4d", route_record.expiry);
+        ESP_LOGI(TAG,"  State: %6s", route_state_name[route_record.relay_count]);
+        for(int i = 0; i < route_record.relay_count; i++) {
+            ESP_LOGI(TAG,"  Path[%d]: 0x%04hx", i, route_record.path[i]);
+        }
+        ESP_LOGI(TAG," ");
+    }
+}
 void esp_zigbee_include_show_tables(void)
 {
     ESP_LOGI(TAG, "Zigbee Network Tables:");
     esp_show_neighbor_table();
     esp_show_route_table();
+    esp_show_record_route_table();
 }
 
 static switch_func_pair_t button_func_pair[] = {
@@ -124,7 +143,7 @@ void send_information_to_coordinator(data_to_send_t *data){
         .cluster_id = ESP_ZB_ZCL_CLUSTER_ID_BASIC,
         .src_endpoint = 10,
         .asdu_length = sizeof(data_to_send_t),
-        .tx_options = 0,
+        .tx_options = ESP_ZB_APSDE_TX_OPT_FRAG_PERMITTED | ESP_ZB_APSDE_TX_OPT_ACK_TX,
         .use_alias = false,
         .alias_src_addr = 0,
         .alias_seq_num = 0,
