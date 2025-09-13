@@ -242,7 +242,7 @@ void create_ping(uint16_t dest_addr)
         .src_endpoint = 10,                          // Example source endpoint
         .asdu_length = data_length,                  // No payload for ping
         .asdu = malloc(data_length * sizeof(uint8_t)), // Allocate memory for ASDU if needed
-        .tx_options = 0,                            // Example transmission options
+        .tx_options = ESP_ZB_APSDE_TX_OPT_FRAG_PERMITTED | ESP_ZB_APSDE_TX_OPT_ACK_TX,// Example transmission options
         .use_alias = false,
         .alias_src_addr = 0,
         .alias_seq_num = 0,
@@ -279,7 +279,7 @@ void create_ping_seq(uint16_t dest_addr, uint32_t seq_num)
         .src_endpoint = 10,                          // Example source endpoint
         .asdu_length = data_length,                  // No payload for ping
         .asdu = malloc(data_length * sizeof(uint8_t)), // Allocate memory for ASDU if needed
-        .tx_options = 0,                            // Example transmission options
+        .tx_options = ESP_ZB_APSDE_TX_OPT_FRAG_PERMITTED | ESP_ZB_APSDE_TX_OPT_ACK_TX,// Example transmission options
         .use_alias = false,
         .alias_src_addr = 0,
         .alias_seq_num = 0,
@@ -295,7 +295,7 @@ void create_ping_seq(uint16_t dest_addr, uint32_t seq_num)
     ping_payload.seq_num = seq_num;
     ping_payload.send_time = pdTICKS_TO_MS(xTaskGetTickCount());
     ping_payload.max_ping_count = REPEATS;
-    for (uint8_t i = 0; i < PING_PAYLOAD_SIZE; i++) {
+    for (uint16_t i = 0; i < PING_PAYLOAD_SIZE; i++) {
         ping_payload.payload[i] = i % 256; // Fill with some data, e.g., incrementing values
     }
     memcpy(req.asdu, &ping_payload, sizeof(ping_payload_t));

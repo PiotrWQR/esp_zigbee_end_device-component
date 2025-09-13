@@ -5,7 +5,7 @@
   "idf.openOcdConfigs": [
     "board/esp32c6-builtin.cfg"
 ],
-  "idf.portWin": "COM8",
+  "idf.portWin": "COM13",
   "idf.toolsPathWin": "C:\\Users\\Ja\\.espressif",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c6"
@@ -30,7 +30,7 @@
         "titleBar.inactiveForeground": "#15202b99"
     },
     "peacock.color": "#a0d0ab",
-    "idf.flashType": "JTAG",
+    "idf.flashType": "UART",
     "files.associations": {
         "main.h": "c"
     }
