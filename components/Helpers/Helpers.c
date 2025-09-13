@@ -170,7 +170,7 @@ bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind)
             processed = true; // Mark as processed
         } 
         if (ind.dst_endpoint == 27 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
-            create_ping(ind.src_short_addr); // Respond to the received data
+            iter=0;
         }
         if(ind.dst_endpoint == 30 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
             setting_change_t *setting_change = (setting_change_t *)ind.asdu;
@@ -232,7 +232,7 @@ void create_ping_64(uint64_t dest_addr)
 //TODO sprawdz większy payload, czy działa
 void create_ping(uint16_t dest_addr)
 {
-    uint32_t data_length = PAYLOAD_SIZE; // Example payload length
+    uint32_t data_length = 50; // Example payload length
     esp_zb_apsde_data_req_t req = {
         .dst_addr_mode = ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT,
         .dst_addr.addr_short = dest_addr,
@@ -324,13 +324,6 @@ void button_handler(switch_func_pair_t *button_func_pair)
         esp_zigbee_include_show_tables();
         iter = 0;
 
-        // create_network_load(0x0000);
-        // create_network_load_64bit(0x404ccafffe5fae8c, 3);
-        // ESP_LOGI("empty line", "");
-        // create_network_load_64bit(0x404ccafffe5fb4d4, 3);
-        // ESP_LOGI("empty line", "");
-        // create_network_load_64bit(0x404ccafffe5de2a8, 3);
-        // ESP_LOGI("empty line", "");
     }
 }
 
