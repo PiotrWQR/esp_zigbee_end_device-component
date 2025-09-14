@@ -2,7 +2,7 @@
 #include "aps/esp_zigbee_aps.h"
 #include "nwk/esp_zigbee_nwk.h"
 
-#define PAYLOAD_SIZE           (950) // Maximum payload size for Zigbee APS layer
+#define PAYLOAD_SIZE           (150) // Maximum payload size for Zigbee APS layer
 static uint16_t REPEATS = 100;
 static uint16_t DEST_ADDR = 0x0000;
 static uint32_t DELAY_MS = 0;

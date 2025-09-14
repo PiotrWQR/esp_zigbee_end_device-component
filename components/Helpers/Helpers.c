@@ -23,7 +23,7 @@ static uint32_t byte_count = 0;
 static uint16_t successful_ping_count = 0;
 static uint16_t failed_ping_count = 0;
 static uint16_t iter = 0xffff;
-static uint32_t bytes =0 ;
+static uint32_t bytes = 0;
 
 
 //function creatiing 68 bytes payload and sending it to the destination address
@@ -283,7 +283,7 @@ void create_ping_seq(uint16_t dest_addr, uint32_t seq_num)
         .use_alias = false,
         .alias_src_addr = 0,
         .alias_seq_num = 0,
-        .radius = 3,                                 // Example radius
+        .radius = 4,                                 // Example radius
     };
 
     ping_payload_t ping_payload;
