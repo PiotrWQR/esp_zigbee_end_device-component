@@ -2,10 +2,10 @@
 #include "aps/esp_zigbee_aps.h"
 #include "nwk/esp_zigbee_nwk.h"
 
-#define PAYLOAD_SIZE           (150) // Maximum payload size for Zigbee APS layer
+#define PAYLOAD_SIZE           (80) 
 static uint16_t REPEATS = 100;
 static uint16_t DEST_ADDR = 0x0000;
-static uint32_t DELAY_MS = 0;
+static uint32_t DELAY_MS = 1000;
 static uint32_t DELAY_TICK = 10;
 
 bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind);
