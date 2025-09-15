@@ -162,6 +162,8 @@ static void esp_zb_task(void *pcParameters)
     esp_zb_set_channel_mask(ESP_ZB_PRIMARY_CHANNEL_MASK);
     
     esp_zb_secur_network_min_join_lqi_set(ESP_ZB_SECUR_MIN_LQI);
+    esp_zb_set_rx_on_when_idle(true);
+    ESP_ERROR_CHECK(esp_zb_aps_set_fragment_interframe_delay(2));
 
     ESP_ERROR_CHECK(zb_register_device());
     ESP_ERROR_CHECK(esp_zb_start(false));
