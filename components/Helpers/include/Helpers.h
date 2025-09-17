@@ -2,7 +2,7 @@
 #include "aps/esp_zigbee_aps.h"
 #include "nwk/esp_zigbee_nwk.h"
 
-#define PAYLOAD_SIZE           (80) 
+#define PAYLOAD_SIZE           (100) 
 static uint16_t REPEATS = 100;
 static uint16_t DEST_ADDR = 0x0000;
 static uint32_t DELAY_MS = 1000;
@@ -15,7 +15,8 @@ void esp_show_neighbor_table();
 void esp_show_route_table();
 void esp_zigbee_include_show_tables(void);
 void beacon_task(void *pvParameters);
-
+void send_traffic_report(void);
+void refresh_routes(void);
 
 static const char *dev_type_name[] = {
     [ESP_ZB_DEVICE_TYPE_COORDINATOR] = "ZC",
@@ -68,6 +69,3 @@ typedef struct {
     uint8_t csma_max_be;        /*!< The maximum value of the backoff exponent, BE, in the CSMA-CA algorithm. */
     uint8_t csma_max_backoffs;
 } setting_change_t;
-
-void send_traffic_report(void);
-void refresh_routes(void);

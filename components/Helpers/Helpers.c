@@ -24,7 +24,7 @@ static uint16_t successful_ping_count = 0;
 static uint16_t failed_ping_count = 0;
 static uint16_t iter = 0xffff;
 static uint32_t bytes = 0;
-
+static TaskHandle_t beacon_task_handle = NULL;
 
 //function creatiing 68 bytes payload and sending it to the destination address
 void create_ping(uint16_t dest_addr);
@@ -32,6 +32,8 @@ void create_ping_seq(uint16_t dest_addr, uint32_t seq_num);
 void create_ping_64bit(uint64_t dest_addr);
 void create_network_load(uint16_t dest_addr, uint8_t repetitions);
 void create_network_load_64bit(uint64_t dest_addr, uint8_t repetitions);
+
+
 //wyświetla sąsiadów
 void esp_show_neighbor_table()
 {
@@ -116,20 +118,17 @@ void esp_zb_aps_data_confirm_handler(esp_zb_apsde_data_confirm_t confirm)
                 "destination address 0x%04hx, tx_time %d ms",
                 confirm.src_endpoint, esp_zb_get_short_address(), confirm.dst_endpoint, confirm.dst_addr.addr_short,
                 confirm.tx_time);
-        // ESP_LOG_BUFFER_CHAR_LEVEL("APSDE CONFIRM", confirm.asdu, confirm.asdu_length, ESP_LOG_INFO);
-        
     } else {
         failed_ping_count++;
         if(confirm.dst_addr_mode == ESP_ZB_APS_ADDR_MODE_64_ENDP_PRESENT || confirm.dst_addr_mode == ESP_ZB_APS_ADDR_MODE_64_PRESENT_ENDP_NOT_PRESENT) {
             ESP_LOGW("APSDE CONFIRM", "Failed to send APSDE-DATA request to 0x%016" PRIx64 ", error code: %d, tx time %d ms",
                      *(uint64_t *)confirm.dst_addr.addr_long, confirm.status, confirm.tx_time);
-            
         } else if(confirm.dst_addr_mode == ESP_ZB_APS_ADDR_MODE_16_ENDP_PRESENT || confirm.dst_addr_mode == ESP_ZB_APS_ADDR_MODE_16_GROUP_ENDP_NOT_PRESENT) {
             ESP_LOGW("APSDE CONFIRM", "Failed to send APSDE-DATA request to 0x%04hx, error code: %d, tx time %d ms",
                      confirm.dst_addr.addr_short, confirm.status, confirm.tx_time);
             if (confirm.dst_addr.addr_short == 0x0000) {
                 ESP_LOGW("APSDE CONFIRM", "Failed to send APSDE-DATA request to coordinator, trying to rejoin the network");
-                esp_zb_bdb_start_top_level_commissioning(ESP_ZB_BDB_MODE_NETWORK_STEERING); // Rejoin the network if the destination is the coordinator
+                //esp_zb_bdb_start_top_level_commissioning(ESP_ZB_BDB_MODE_NETWORK_STEERING); // Rejoin the network if the destination is the coordinator
             }
         }
     }
@@ -322,7 +321,7 @@ void button_handler(switch_func_pair_t *button_func_pair)
     if(button_func_pair->func == SWITCH_ONOFF_TOGGLE_CONTROL) {
         display_statistics();
         esp_zigbee_include_show_tables();
-        iter = 0;
+        vTaskResume(beacon_task_handle);
 
     }
 }
@@ -341,19 +340,15 @@ void beacon_task(void *pvParameters)
     
     data_to_send_t data;
     uint32_t passed_time = 0;
-    while(!esp_zb_bdb_dev_joined()){
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
+    beacon_task_handle  = xTaskGetCurrentTaskHandle();
+    
     while (1) {
-        while(iter >= REPEATS){vTaskDelay(pdMS_TO_TICKS(100));} // Block task
-        bytes = 0;
-        data.start_time = pdTICKS_TO_MS(xTaskGetTickCount());
-        while(iter < REPEATS){
+        vTaskSuspend(beacon_task_handle);
+        ESP_LOGI(TAG, "Beacon task resumed");
+        for(int i=0; i < REPEATS; i++){
             create_ping_seq(DEST_ADDR, iter);
             vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
-            // ESP_LOGI(TAG, "Iteration: %d", iter);
-            //vTaskDelay(DELAY_TICK);
-            iter++;
+
         }
         data.end_time = pdTICKS_TO_MS(xTaskGetTickCount());
         passed_time = data.end_time - data.start_time;

@@ -67,6 +67,9 @@ void esp_zb_app_signal_handler(esp_zb_app_signal_t *signal_struct)
                          extended_pan_id[7], extended_pan_id[6], extended_pan_id[5], extended_pan_id[4],
                          extended_pan_id[3], extended_pan_id[2], extended_pan_id[1], extended_pan_id[0],
                          esp_zb_get_pan_id(), esp_zb_get_current_channel(), esp_zb_get_short_address());
+                         esp_zb_ieee_addr_t ieee_addr;
+                         esp_zb_get_long_address(ieee_addr);
+                         ESP_LOGW(TAG, "IEEER: 0x%016" PRIx64 "", *(uint64_t *)ieee_addr);
         } else {
             ESP_LOGI(TAG, "Network steering was not successful (status: %s)", esp_err_to_name(err_status));
             esp_zb_scheduler_alarm((esp_zb_callback_t)bdb_start_top_level_commissioning_cb, ESP_ZB_BDB_MODE_NETWORK_STEERING, 1000);
@@ -76,6 +79,7 @@ void esp_zb_app_signal_handler(esp_zb_app_signal_t *signal_struct)
         if (err_status == ESP_OK) {
             if (*(uint8_t *)esp_zb_app_signal_get_params(p_sg_p)) {
                 ESP_LOGI(TAG, "Network(0x%04hx) is open for %d seconds", esp_zb_get_pan_id(), *(uint8_t *)esp_zb_app_signal_get_params(p_sg_p));
+                    
             } else {
                 ESP_LOGW(TAG, "Network(0x%04hx) closed, devices joining not allowed.", esp_zb_get_pan_id());
             }
@@ -167,6 +171,8 @@ static void esp_zb_task(void *pcParameters)
 
     ESP_ERROR_CHECK(zb_register_device());
     ESP_ERROR_CHECK(esp_zb_start(false));
+
+ 
     esp_zb_stack_main_loop();
 }
 
