@@ -69,7 +69,8 @@ void esp_zb_app_signal_handler(esp_zb_app_signal_t *signal_struct)
                          esp_zb_get_pan_id(), esp_zb_get_current_channel(), esp_zb_get_short_address());
                          esp_zb_ieee_addr_t ieee_addr;
                          esp_zb_get_long_address(ieee_addr);
-                         ESP_LOGW(TAG, "IEEER: 0x%016" PRIx64 "", *(uint64_t *)ieee_addr);
+                         ESP_LOGW(TAG, "IEEE: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x" ,ieee_addr[7], ieee_addr[6], ieee_addr[5], ieee_addr[4],
+                         ieee_addr[3], ieee_addr[2], ieee_addr[1], ieee_addr[0]);
         } else {
             ESP_LOGI(TAG, "Network steering was not successful (status: %s)", esp_err_to_name(err_status));
             esp_zb_scheduler_alarm((esp_zb_callback_t)bdb_start_top_level_commissioning_cb, ESP_ZB_BDB_MODE_NETWORK_STEERING, 1000);

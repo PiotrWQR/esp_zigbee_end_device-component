@@ -22,7 +22,6 @@ static uint32_t byte_count = 0;
 
 static uint16_t successful_ping_count = 0;
 static uint16_t failed_ping_count = 0;
-static uint16_t iter = 0xffff;
 static uint32_t bytes = 0;
 static TaskHandle_t beacon_task_handle = NULL;
 
@@ -169,7 +168,8 @@ bool zb_apsde_data_indication_handler(esp_zb_apsde_data_ind_t ind)
             processed = true; // Mark as processed
         } 
         if (ind.dst_endpoint == 27 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
-            iter=0;
+            vTaskResume(beacon_task_handle);
+            processed = true; // Mark as processed
         }
         if(ind.dst_endpoint == 30 && ind.profile_id == ESP_ZB_AF_HA_PROFILE_ID && ind.cluster_id == ESP_ZB_ZCL_CLUSTER_ID_BASIC) {
             setting_change_t *setting_change = (setting_change_t *)ind.asdu;
@@ -288,6 +288,7 @@ void create_ping_seq(uint16_t dest_addr, uint32_t seq_num)
     ping_payload_t ping_payload;
 
     if (req.asdu == NULL) {
+        const char *TAG = "BEACON TASK";
         ESP_LOGE(TAG, "Failed to allocate memory for ASDU");
         return;
     } 
@@ -337,16 +338,18 @@ bool deferred_driver_init(void)
 
 void beacon_task(void *pvParameters)
 {
-    
+    const char *TAG = "BEACON TASK";
     data_to_send_t data;
-    uint32_t passed_time = 0;
     beacon_task_handle  = xTaskGetCurrentTaskHandle();
     
     while (1) {
+        
         vTaskSuspend(beacon_task_handle);
         ESP_LOGI(TAG, "Beacon task resumed");
+        uint32_t passed_time = 0;
+        data.start_time = pdTICKS_TO_MS(xTaskGetTickCount());
         for(int i=0; i < REPEATS; i++){
-            create_ping_seq(DEST_ADDR, iter);
+            create_ping_seq(DEST_ADDR, i);
             vTaskDelay(pdMS_TO_TICKS(DELAY_MS)); // Wait for 0 milliseconds
 
         }
