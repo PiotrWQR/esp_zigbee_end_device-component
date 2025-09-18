@@ -155,10 +155,11 @@ static void esp_zb_task(void *pcParameters)
 {
 
     esp_zb_cfg_t zb_nwk_cfg = ESP_ZB_ZR_CONFIG();
+    //ESP_ERROR_CHECK(esp_zb_io_buffer_size_set(250));
     esp_zb_init(&zb_nwk_cfg);
-    esp_zb_nvram_erase_at_start(true);
+    esp_zb_nvram_erase_at_start(true);//usuwa tablice i ustawienia z pamięci NVRAM
     
-    esp_zb_set_tx_power(20);
+    esp_zb_set_tx_power(20); //m
     esp_zb_aps_data_indication_handler_register(zb_apsde_data_indication_handler);
     esp_zb_aps_data_confirm_handler_register(esp_zb_aps_data_confirm_handler);
     esp_zb_core_action_handler_register(zb_action_handler);
@@ -189,7 +190,7 @@ void app_main(void)
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_zb_platform_config(&config));
-    xTaskCreate(esp_zb_task, "Zigbee_main", 4096, NULL, 5, NULL);
+    xTaskCreate(esp_zb_task, "Zigbee_main", 6096, NULL, 5, NULL);
     xTaskCreate(beacon_task, "Zigbee_beacon", 10096, NULL, 5, NULL);
     //xTaskCreate(traffic_reporter_init, "Zigbee_traffic_reporter", 4096, NULL, 5, NULL);
 }
